@@ -4,11 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "predev": "npm run fix:imports",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "fix:imports": "node scripts/fix-duplicate-imports.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.3.1",

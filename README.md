@@ -15,17 +15,6 @@ npm install
 npm run dev
 ```
 
-
-## 1.1) Protección automática antes de levantar dev
-
-`npm run dev` ahora ejecuta automáticamente `predev`, que corre:
-
-```bash
-npm run fix:imports
-```
-
-Así se corrigen imports duplicados en `src/App.jsx` antes de arrancar Vite.
-
 ## 2) Conectar Supabase
 
 Copia `.env.example` a `.env` y configura:

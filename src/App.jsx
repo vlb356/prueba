@@ -1,6 +1,6 @@
-import { api } from './lib/api'
-import { CalendarCheck2, Compass, LoaderCircle, MessageCircleMore, Search, UserRound } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { CalendarCheck2, Compass, LoaderCircle, MessageCircleMore, Search, UserRound } from 'lucide-react'
+import { api } from './lib/api'
 
 const tabs = [
   { id: 'discover', label: 'Discover', icon: Compass },
