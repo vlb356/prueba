@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+
 const venues = [
   {
     name: 'Urban Club District',
@@ -14,6 +16,32 @@ const venues = [
     type: 'Courts',
     tags: ['Basketball', 'Padel', 'Night lights'],
   },
+  {
+    name: 'North Padel Dome',
+    type: 'Courts',
+    tags: ['Padel', 'Social ladder', 'Pro coaching'],
+  },
+]
+
+const tabs = ['All', 'Clubs', 'Gyms', 'Courts']
+
+export function VenuesSection({ searchTerm, onBook }) {
+  const [activeTab, setActiveTab] = useState('All')
+
+  const filteredVenues = useMemo(() => {
+    return venues.filter((venue) => {
+      const tabMatch = activeTab === 'All' || venue.type === activeTab
+      const search = searchTerm.trim().toLowerCase()
+      const searchMatch =
+        !search ||
+        venue.name.toLowerCase().includes(search) ||
+        venue.type.toLowerCase().includes(search) ||
+        venue.tags.some((tag) => tag.toLowerCase().includes(search))
+
+      return tabMatch && searchMatch
+    })
+  }, [activeTab, searchTerm])
+
 ]
 
 export function VenuesSection() {
@@ -29,6 +57,30 @@ export function VenuesSection() {
         </button>
       </div>
 
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`rounded-full px-4 py-1.5 text-sm transition ${
+              activeTab === tab
+                ? 'bg-accent-500 text-primary-950'
+                : 'border border-white/15 text-slate-300 hover:border-accent-400/60 hover:text-accent-200'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {searchTerm && (
+        <p className="mb-4 text-sm text-slate-300">
+          Showing results for: <span className="text-accent-300">{searchTerm}</span>
+        </p>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {filteredVenues.map((venue) => (
       <div className="grid gap-4 md:grid-cols-3">
         {venues.map((venue) => (
           <article key={venue.name} className="glass rounded-2xl p-5 transition hover:-translate-y-1 hover:border-accent-500/50">
@@ -41,6 +93,21 @@ export function VenuesSection() {
                 </span>
               ))}
             </div>
+            <button
+              onClick={() => onBook(venue.name)}
+              className="mt-5 w-full rounded-xl bg-accent-500 px-4 py-2 text-sm font-semibold text-primary-950 transition hover:bg-accent-400"
+            >
+              Book now
+            </button>
+          </article>
+        ))}
+      </div>
+
+      {!filteredVenues.length && (
+        <div className="glass mt-4 rounded-2xl p-5 text-center text-slate-300">
+          No venues match your search yet. Try another sport or remove filters.
+        </div>
+      )}
           </article>
         ))}
       </div>

@@ -6,6 +6,9 @@ const highlights = [
   { icon: Users, label: 'Play with your community' },
 ]
 
+const quickSports = ['Padel', 'Basketball', 'Running', 'HIIT']
+
+export function HeroSection({ searchTerm, onSearchTermChange, onGetStarted, onExplore }) {
 export function HeroSection() {
   return (
     <section className="section-shell" id="hero">
@@ -22,12 +25,43 @@ export function HeroSection() {
             multisport platform.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
+            <button
+              onClick={onGetStarted}
+              className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 shadow-orange transition hover:bg-accent-400"
+            >
+              Get Started
+            </button>
+            <button
+              onClick={onExplore}
+              className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-semibold text-slate-100 transition hover:bg-white/10"
+            >
             <button className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 shadow-orange transition hover:bg-accent-400">
               Get Started
             </button>
             <button className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-semibold text-slate-100 transition hover:bg-white/10">
               Explore venues
             </button>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <label className="text-xs uppercase tracking-[0.15em] text-slate-300">Search activities in your city</label>
+            <input
+              value={searchTerm}
+              onChange={(event) => onSearchTermChange(event.target.value)}
+              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-accent-400"
+              placeholder="Try: padel, gym, courts..."
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              {quickSports.map((sport) => (
+                <button
+                  key={sport}
+                  onClick={() => onSearchTermChange(sport)}
+                  className="rounded-full border border-white/15 px-3 py-1 text-xs text-slate-200 transition hover:border-accent-400/60 hover:text-accent-200"
+                >
+                  {sport}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
