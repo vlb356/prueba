@@ -9,6 +9,7 @@ const highlights = [
 const quickSports = ['Padel', 'Basketball', 'Running', 'HIIT']
 
 export function HeroSection({ searchTerm, onSearchTermChange, onGetStarted, onExplore }) {
+export function HeroSection() {
   return (
     <section className="section-shell" id="hero">
       <div className="grid items-center gap-10 lg:grid-cols-[1.12fr_0.88fr]">
@@ -34,6 +35,10 @@ export function HeroSection({ searchTerm, onSearchTermChange, onGetStarted, onEx
               onClick={onExplore}
               className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-semibold text-slate-100 transition hover:bg-white/10"
             >
+            <button className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 shadow-orange transition hover:bg-accent-400">
+              Get Started
+            </button>
+            <button className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-semibold text-slate-100 transition hover:bg-white/10">
               Explore venues
             </button>
           </div>

@@ -30,6 +30,7 @@ export function CommunitySection({ onJoinEvent }) {
     )
   }
 
+export function CommunitySection() {
   return (
     <section className="section-shell" id="community">
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
@@ -62,6 +63,15 @@ export function CommunitySection({ onJoinEvent }) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           {communityBlocks.map((item) => (
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[
+            { title: 'Group chats', text: 'Coordinate sessions and keep your team active.' },
+            { title: 'Weekly challenges', text: 'Compete, earn badges, and celebrate progress.' },
+            { title: 'Local events', text: 'Join pop-up tournaments and social runs.' },
+            { title: 'Accountability circles', text: 'Stay motivated with your sports crew.' },
+          ].map((item) => (
             <article key={item.title} className="glass rounded-2xl p-5">
               <h3 className="text-lg font-semibold">{item.title}</h3>
               <p className="mt-2 text-sm text-slate-300">{item.text}</p>

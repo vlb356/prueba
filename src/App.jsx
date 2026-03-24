@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { ArrowRight, CheckCircle2, Trophy, X } from 'lucide-react'
+import { ArrowRight, Trophy } from 'lucide-react'
 import { HeroSection } from './components/HeroSection'
 import { HowItWorks } from './components/HowItWorks'
 import { FeaturesGrid } from './components/FeaturesGrid'
@@ -119,6 +120,7 @@ export default function App() {
     toastTimerRef.current = window.setTimeout(() => setToastMessage(''), 3600)
   }
 
+export default function App() {
   return (
     <div className="overflow-hidden text-slate-100">
       <header className="section-shell sticky top-3 z-40 pt-3">
@@ -148,6 +150,7 @@ export default function App() {
                 document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
+            <button className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-3 py-2 text-xs font-semibold text-primary-950 transition hover:bg-accent-400 sm:text-sm">
               Join KR
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -173,6 +176,12 @@ export default function App() {
             notify(`${planName} selected. Total: ${planName === 'Monthly' ? '€29' : planName === '3 months' ? '€75' : '€249'}.`)
           }}
         />
+        <HeroSection />
+        <HowItWorks />
+        <FeaturesGrid />
+        <VenuesSection />
+        <CommunitySection />
+        <PricingSection />
 
         <section className="section-shell" id="final-cta">
           <div className="glass relative overflow-hidden rounded-3xl p-7 sm:p-10">
@@ -220,6 +229,20 @@ export default function App() {
         </section>
       </main>
       <Toast message={toastMessage} onClose={() => setToastMessage('')} />
+            <p className="mt-4 max-w-xl text-slate-300">
+              Discover venues, join events, and train with people who push you forward.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 transition hover:bg-accent-400">
+                Register now
+              </button>
+              <button className="rounded-xl border border-white/20 px-6 py-3 font-semibold text-white transition hover:border-white/35">
+                Login
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   )
 }
