@@ -42,6 +42,9 @@ export function VenuesSection({ searchTerm, onBook }) {
     })
   }, [activeTab, searchTerm])
 
+]
+
+export function VenuesSection() {
   return (
     <section className="section-shell" id="venues">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -78,6 +81,8 @@ export function VenuesSection({ searchTerm, onBook }) {
 
       <div className="grid gap-4 md:grid-cols-3">
         {filteredVenues.map((venue) => (
+      <div className="grid gap-4 md:grid-cols-3">
+        {venues.map((venue) => (
           <article key={venue.name} className="glass rounded-2xl p-5 transition hover:-translate-y-1 hover:border-accent-500/50">
             <p className="text-sm text-accent-300">{venue.type}</p>
             <h3 className="mt-2 text-xl font-semibold">{venue.name}</h3>
@@ -103,6 +108,9 @@ export function VenuesSection({ searchTerm, onBook }) {
           No venues match your search yet. Try another sport or remove filters.
         </div>
       )}
+          </article>
+        ))}
+      </div>
     </section>
   )
 }
