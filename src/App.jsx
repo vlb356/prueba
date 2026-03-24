@@ -1,248 +1,310 @@
-import { useMemo, useRef, useState } from 'react'
-import { ArrowRight, CheckCircle2, Trophy, X } from 'lucide-react'
-import { ArrowRight, Trophy } from 'lucide-react'
-import { HeroSection } from './components/HeroSection'
-import { HowItWorks } from './components/HowItWorks'
-import { FeaturesGrid } from './components/FeaturesGrid'
-import { VenuesSection } from './components/VenuesSection'
-import { CommunitySection } from './components/CommunitySection'
-import { PricingSection } from './components/PricingSection'
+import { useEffect, useMemo, useState } from 'react'
+import { CalendarCheck2, Compass, LoaderCircle, MessageCircleMore, Search, UserRound } from 'lucide-react'
+import { api } from './lib/api'
 
-const navItems = ['How it works', 'Features', 'Venues', 'Community', 'Pricing']
+const tabs = [
+  { id: 'discover', label: 'Discover', icon: Compass },
+  { id: 'bookings', label: 'Bookings', icon: CalendarCheck2 },
+  { id: 'community', label: 'Community', icon: MessageCircleMore },
+  { id: 'profile', label: 'Profile', icon: UserRound },
+]
 
-function Toast({ message, onClose }) {
-  if (!message) return null
+function StatusPill({ source }) {
+  const connected = source === 'supabase'
+
   return (
-    <div className="fixed bottom-5 left-1/2 z-50 w-[92%] max-w-lg -translate-x-1/2 rounded-xl border border-emerald-300/30 bg-emerald-500/15 p-3 text-sm text-emerald-100 backdrop-blur">
-      <div className="flex items-start gap-2">
-        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-        <p className="flex-1">{message}</p>
-        <button className="rounded p-0.5 text-emerald-100/80 transition hover:bg-emerald-100/15" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
+    <span
+      className={`rounded-full px-3 py-1 text-xs font-medium ${
+        connected ? 'bg-emerald-400/20 text-emerald-200' : 'bg-amber-400/20 text-amber-200'
+      }`}
+    >
+      {connected ? 'Supabase connected' : 'Mock mode'}
+    </span>
   )
 }
 
-function AuthPanel({ mode, selectedPlan, onSubmit }) {
-  const [form, setForm] = useState({ name: '', email: '', password: '' })
+function AppHeader({ source }) {
+  return (
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-primary-950/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-accent-300">Komanda Ryžys</p>
+          <h1 className="text-xl font-semibold">Victory is born together</h1>
+        </div>
+        <StatusPill source={source} />
+      </div>
+    </header>
+  )
+}
 
-  const title = mode === 'register' ? 'Create your KR account' : 'Welcome back'
-  const buttonLabel = mode === 'register' ? 'Create account' : 'Login'
+function DiscoverTab({ venues, search, setSearch, onBook, bookingForm, setBookingForm }) {
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase()
+    if (!term) return venues
+    return venues.filter(
+      (venue) =>
+        venue.name.toLowerCase().includes(term) ||
+        venue.sport.toLowerCase().includes(term) ||
+        venue.zone.toLowerCase().includes(term),
+    )
+  }, [venues, search])
 
-  const updateField = (event) => {
-    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }))
-  }
+  return (
+    <section className="space-y-4">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <label className="text-xs uppercase tracking-[0.15em] text-slate-300">Search venues and sports</label>
+        <div className="mt-2 flex items-center gap-2 rounded-xl border border-white/10 bg-primary-950/70 px-3 py-2">
+          <Search className="h-4 w-4 text-slate-400" />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="w-full bg-transparent text-sm outline-none"
+            placeholder="Padel, Basketball, North..."
+          />
+        </div>
+      </div>
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+      <div className="grid gap-3 md:grid-cols-2">
+        {filtered.map((venue) => (
+          <article key={venue.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">{venue.name}</h3>
+                <p className="text-sm text-slate-300">
+                  {venue.sport} · {venue.zone}
+                </p>
+              </div>
+              <span className="rounded-full bg-accent-500/20 px-2 py-1 text-xs text-accent-200">{venue.slots} slots</span>
+            </div>
 
-    if (!form.email || !form.password || (mode === 'register' && !form.name)) {
-      onSubmit({ ok: false, message: 'Please complete all required fields.' })
-      return
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <input
+                type="date"
+                value={bookingForm.date}
+                onChange={(event) => setBookingForm((prev) => ({ ...prev, date: event.target.value }))}
+                className="rounded-lg border border-white/10 bg-primary-950/80 px-3 py-2 text-sm"
+              />
+              <select
+                value={bookingForm.slot}
+                onChange={(event) => setBookingForm((prev) => ({ ...prev, slot: event.target.value }))}
+                className="rounded-lg border border-white/10 bg-primary-950/80 px-3 py-2 text-sm"
+              >
+                <option>18:00</option>
+                <option>19:00</option>
+                <option>20:00</option>
+                <option>21:00</option>
+              </select>
+            </div>
+
+            <button
+              onClick={() => onBook(venue)}
+              className="mt-3 w-full rounded-xl bg-accent-500 px-4 py-2.5 text-sm font-semibold text-primary-950 hover:bg-accent-400"
+            >
+              Book venue
+            </button>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function BookingsTab({ bookings }) {
+  return (
+    <section className="space-y-3">
+      {!bookings.length && <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-slate-300">No bookings yet.</div>}
+
+      {bookings.map((booking) => (
+        <article key={booking.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <h3 className="font-semibold">{booking.venue_name}</h3>
+          <p className="text-sm text-slate-300">
+            {booking.date} · {booking.slot}
+          </p>
+        </article>
+      ))}
+    </section>
+  )
+}
+
+function CommunityTab({ events, onToggleEvent }) {
+  return (
+    <section className="grid gap-3 md:grid-cols-2">
+      {events.map((event) => (
+        <article key={event.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <h3 className="font-semibold">{event.name}</h3>
+          <p className="text-sm text-slate-300">
+            {event.sport} · {event.attendees} players
+          </p>
+          <button
+            onClick={() => onToggleEvent(event)}
+            className={`mt-3 rounded-lg px-3 py-2 text-sm font-medium ${
+              event.joined ? 'bg-emerald-400/20 text-emerald-100' : 'bg-accent-500 text-primary-950 hover:bg-accent-400'
+            }`}
+          >
+            {event.joined ? 'Joined' : 'Join event'}
+          </button>
+        </article>
+      ))}
+    </section>
+  )
+}
+
+function ProfileTab({ source, selectedPlan, setSelectedPlan }) {
+  return (
+    <section className="space-y-4">
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <h3 className="font-semibold">Membership</h3>
+        <p className="mt-1 text-sm text-slate-300">Choose your active plan.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {['Monthly', '3 months', 'Annual'].map((plan) => (
+            <button
+              key={plan}
+              onClick={() => setSelectedPlan(plan)}
+              className={`rounded-full px-3 py-1.5 text-sm ${
+                selectedPlan === plan
+                  ? 'bg-accent-500 text-primary-950'
+                  : 'border border-white/15 text-slate-300 hover:border-accent-400/60'
+              }`}
+            >
+              {plan}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <h3 className="font-semibold">Data source</h3>
+        <p className="mt-1 text-sm text-slate-300">
+          Current mode: <strong>{source}</strong>. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to switch to real DB.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('discover')
+  const [source, setSource] = useState('mock')
+  const [venues, setVenues] = useState([])
+  const [events, setEvents] = useState([])
+  const [bookings, setBookings] = useState([])
+  const [selectedPlan, setSelectedPlan] = useState('3 months')
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [toast, setToast] = useState('')
+  const [bookingForm, setBookingForm] = useState({
+    date: new Date().toISOString().slice(0, 10),
+    slot: '19:00',
+  })
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      setError('')
+      try {
+        const data = await api.getBootstrapData()
+        setSource(data.source)
+        setVenues(data.venues)
+        setEvents(data.events)
+        setBookings(data.bookings)
+      } catch (fetchError) {
+        setError(fetchError.message || 'Could not load app data')
+      } finally {
+        setLoading(false)
+      }
     }
 
-    onSubmit({
-      ok: true,
-      message:
-        mode === 'register'
-          ? `Welcome ${form.name.split(' ')[0]}! Your ${selectedPlan} plan is almost ready.`
-          : `Great to see you again. Your ${selectedPlan} dashboard is ready.`,
-    })
-    setForm({ name: '', email: '', password: '' })
+    load()
+  }, [])
+
+  const showToast = (message) => {
+    setToast(message)
+    window.setTimeout(() => setToast(''), 2800)
+  }
+
+  const handleBook = async (venue) => {
+    try {
+      const booking = await api.bookVenue({
+        venueId: venue.id,
+        venueName: venue.name,
+        date: bookingForm.date,
+        slot: bookingForm.slot,
+      })
+
+      setBookings((prev) => [booking, ...prev])
+      setActiveTab('bookings')
+      showToast(`${venue.name} booked for ${bookingForm.date} at ${bookingForm.slot}`)
+    } catch (bookError) {
+      showToast(bookError.message || 'Booking failed')
+    }
+  }
+
+  const handleToggleEvent = async (event) => {
+    try {
+      const updatedEvent = await api.toggleEventJoin(event.id, event.joined)
+      setEvents((prev) => prev.map((item) => (item.id === updatedEvent.id ? updatedEvent : item)))
+      showToast(updatedEvent.joined ? `Joined ${updatedEvent.name}` : `Left ${updatedEvent.name}`)
+    } catch (joinError) {
+      showToast(joinError.message || 'Event update failed')
+    }
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <h3 className="text-2xl font-semibold">{title}</h3>
-      <p className="text-sm text-slate-300">Plan selected: {selectedPlan}</p>
+    <div className="min-h-screen bg-primary-950 text-slate-100">
+      <AppHeader source={source} />
 
-      {mode === 'register' && (
-        <label className="block text-sm text-slate-300">
-          Full name
-          <input
-            className="mt-1 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-slate-100 outline-none transition focus:border-accent-400"
-            placeholder="Alex Kim"
-            name="name"
-            value={form.name}
-            onChange={updateField}
-          />
-        </label>
-      )}
-
-      <label className="block text-sm text-slate-300">
-        Email
-        <input
-          className="mt-1 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-slate-100 outline-none transition focus:border-accent-400"
-          type="email"
-          name="email"
-          placeholder="you@email.com"
-          value={form.email}
-          onChange={updateField}
-        />
-      </label>
-
-      <label className="block text-sm text-slate-300">
-        Password
-        <input
-          className="mt-1 w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-slate-100 outline-none transition focus:border-accent-400"
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          value={form.password}
-          onChange={updateField}
-        />
-      </label>
-
-      <button className="w-full rounded-xl bg-accent-500 px-5 py-2.5 font-semibold text-primary-950 transition hover:bg-accent-400">
-        {buttonLabel}
-      </button>
-    </form>
-  )
-}
-
-export default function App() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedPlan, setSelectedPlan] = useState('3 months')
-  const [authMode, setAuthMode] = useState('register')
-  const [toastMessage, setToastMessage] = useState('')
-  const toastTimerRef = useRef(null)
-
-  const planPrice = useMemo(() => {
-    const prices = { Monthly: '€29', '3 months': '€75', Annual: '€249' }
-    return prices[selectedPlan]
-  }, [selectedPlan])
-
-  const notify = (message) => {
-    setToastMessage(message)
-    window.clearTimeout(toastTimerRef.current)
-    toastTimerRef.current = window.setTimeout(() => setToastMessage(''), 3600)
-  }
-
-export default function App() {
-  return (
-    <div className="overflow-hidden text-slate-100">
-      <header className="section-shell sticky top-3 z-40 pt-3">
-        <div className="glass rounded-2xl px-4 py-3 shadow-glow">
-          <div className="flex items-center justify-between gap-3">
-            <a href="#" className="inline-flex items-center gap-2 font-semibold tracking-wide">
-              <span className="rounded-lg bg-accent-500/90 p-2 text-primary-950 shadow-orange">
-                <Trophy className="h-4 w-4" />
-              </span>
-              <span className="text-sm sm:text-base">Komanda Ryžys</span>
-            </a>
-            <nav className="hidden items-center gap-7 md:flex">
-              {navItems.map((item) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-sm text-slate-300 transition hover:text-white"
-                >
-                  {item}
-                </a>
-              ))}
-            </nav>
-            <button
-              className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-3 py-2 text-xs font-semibold text-primary-950 transition hover:bg-accent-400 sm:text-sm"
-              onClick={() => {
-                setAuthMode('register')
-                document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-            <button className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-3 py-2 text-xs font-semibold text-primary-950 transition hover:bg-accent-400 sm:text-sm">
-              Join KR
-              <ArrowRight className="h-4 w-4" />
-            </button>
+      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6">
+        {loading && (
+          <div className="flex items-center gap-2 text-slate-300">
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+            Loading app data...
           </div>
-        </div>
-      </header>
+        )}
 
-      <main className="space-y-24 pb-24 pt-8 sm:space-y-28">
-        <HeroSection
-          searchTerm={searchTerm}
-          onSearchTermChange={setSearchTerm}
-          onExplore={() => document.getElementById('venues')?.scrollIntoView({ behavior: 'smooth' })}
-          onGetStarted={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-        />
-        <HowItWorks />
-        <FeaturesGrid />
-        <VenuesSection searchTerm={searchTerm} onBook={(venue) => notify(`Booking request sent for ${venue}.`)} />
-        <CommunitySection onJoinEvent={(eventName) => notify(`You joined ${eventName}. Let's play!`)} />
-        <PricingSection
-          selectedPlan={selectedPlan}
-          onSelectPlan={(planName) => {
-            setSelectedPlan(planName)
-            notify(`${planName} selected. Total: ${planName === 'Monthly' ? '€29' : planName === '3 months' ? '€75' : '€249'}.`)
-          }}
-        />
-        <HeroSection />
-        <HowItWorks />
-        <FeaturesGrid />
-        <VenuesSection />
-        <CommunitySection />
-        <PricingSection />
+        {error && <div className="rounded-xl border border-rose-400/30 bg-rose-500/15 p-3 text-sm text-rose-100">{error}</div>}
 
-        <section className="section-shell" id="final-cta">
-          <div className="glass relative overflow-hidden rounded-3xl p-7 sm:p-10">
-            <div className="absolute -right-16 -top-20 h-48 w-48 rounded-full bg-accent-500/20 blur-3xl" />
-            <p className="mb-3 text-sm uppercase tracking-[0.2em] text-accent-300">Victory is born together</p>
-            <h2 className="max-w-3xl text-3xl font-semibold sm:text-4xl">
-              Your city has never been this connected. Start your KR journey today.
-            </h2>
-            <p className="mt-4 max-w-xl text-slate-300">Continue with {selectedPlan} ({planPrice}) and unlock all sports in your city.</p>
-
-            <div className="mt-8 flex gap-2 rounded-xl bg-white/5 p-1 sm:w-fit">
-              <button
-                onClick={() => setAuthMode('register')}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                  authMode === 'register' ? 'bg-accent-500 text-primary-950' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                Register
-              </button>
-              <button
-                onClick={() => setAuthMode('login')}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                  authMode === 'login' ? 'bg-accent-500 text-primary-950' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                Login
-              </button>
-            </div>
-
-            <div className="mt-6 max-w-md">
-              <AuthPanel
-                mode={authMode}
-                selectedPlan={selectedPlan}
-                onSubmit={(result) => {
-                  if (!result.ok) {
-                    notify(result.message)
-                    return
-                  }
-
-                  notify(result.message)
-                }}
+        {!loading && !error && (
+          <>
+            {activeTab === 'discover' && (
+              <DiscoverTab
+                venues={venues}
+                search={search}
+                setSearch={setSearch}
+                onBook={handleBook}
+                bookingForm={bookingForm}
+                setBookingForm={setBookingForm}
               />
-            </div>
-          </div>
-        </section>
+            )}
+            {activeTab === 'bookings' && <BookingsTab bookings={bookings} />}
+            {activeTab === 'community' && <CommunityTab events={events} onToggleEvent={handleToggleEvent} />}
+            {activeTab === 'profile' && <ProfileTab source={source} selectedPlan={selectedPlan} setSelectedPlan={setSelectedPlan} />}
+          </>
+        )}
       </main>
-      <Toast message={toastMessage} onClose={() => setToastMessage('')} />
-            <p className="mt-4 max-w-xl text-slate-300">
-              Discover venues, join events, and train with people who push you forward.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 transition hover:bg-accent-400">
-                Register now
-              </button>
-              <button className="rounded-xl border border-white/20 px-6 py-3 font-semibold text-white transition hover:border-white/35">
-                Login
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-primary-950/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl justify-between px-2 py-2 sm:px-6">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex min-w-20 flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs transition ${
+                activeTab === id ? 'bg-accent-500 text-primary-950' : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {toast && (
+        <div className="fixed bottom-20 left-1/2 z-50 w-[92%] max-w-md -translate-x-1/2 rounded-xl border border-emerald-400/20 bg-emerald-500/15 p-3 text-sm text-emerald-100 backdrop-blur">
+          {toast}
+        </div>
+      )}
     </div>
   )
 }

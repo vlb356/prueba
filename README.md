@@ -1,54 +1,49 @@
-# Komanda Ryžys Landing (Vite + React + Tailwind)
+# Komanda Ryžys App (Vite + React + Tailwind)
 
-## Quick start
+Esta versión está enfocada como **app** (no solo landing):
+- Discover de venues con búsqueda.
+- Reserva de espacios con fecha/hora.
+- Comunidad con join/leave de eventos.
+- Bookings en tiempo real en la UI.
+- Perfil y selección de plan.
+- Capa de datos preparada para **Supabase** con fallback mock.
+
+## 1) Instalar y ejecutar
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build
+## 2) Conectar Supabase
+
+Copia `.env.example` a `.env` y configura:
 
 ```bash
-npm run build
-npm run preview
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
 ```
 
-## If you are getting git conflicts before commit
+Si faltan estas variables, la app funciona en modo `mock`.
 
-Use this safe sequence to preserve your work and re-apply cleanly:
+## 3) Tablas esperadas en Supabase
+
+- `venues`: `id`, `name`, `sport`, `zone`, `slots`
+- `events`: `id`, `name`, `sport`, `joined`, `attendees`
+- `bookings`: `id`, `venue_id`, `venue_name`, `date`, `slot`, `created_at`
+
+## 4) Arquitectura
+
+- `src/App.jsx`: shell app-style con tabs, estado y flujos.
+- `src/lib/supabaseClient.js`: cliente Supabase y detección de env.
+- `src/lib/api.js`: capa de acceso a datos (Supabase + mock fallback).
+
+## 5) Resolución rápida de conflictos
+
+Si ves imports duplicados o errores de merge en `src/App.jsx`:
 
 ```bash
-git status
-git add -A
-git stash push -m "wip-before-kr-sync"
-git fetch origin
-git checkout <your-branch>
-git pull --rebase origin <your-branch>
-git stash pop
+git checkout -- src/App.jsx
 ```
 
-If conflicts still appear:
-
-```bash
-git status
-# open conflicted files and keep the desired blocks
-# then:
-git add <resolved-files>
-git rebase --continue
-```
-
-If you need to discard local conflicted state and recover this version:
-
-```bash
-git reset --hard
-# optional: restore the last good commit from this branch
-git log --oneline -n 5
-```
-
-## Project structure
-
-- `src/App.jsx`: App shell + interactions (auth panel, toasts, section wiring).
-- `src/components/*`: Feature sections (Hero, How it works, Features, Venues, Community, Pricing).
-- `tailwind.config.js`: Brand theme, animations, shadows.
-- `src/index.css`: Global styles and shared utility classes.
+Luego aplica tus cambios encima del archivo limpio.
