@@ -11,6 +11,7 @@ export function SocialPage({ isSubscribed, notify, session }) {
   const [syncError, setSyncError] = useState('')
   const [loading, setLoading] = useState(true)
   const [newPost, setNewPost] = useState({ title: '', body: '', tag: 'General' })
+  const [socialSearch, setSocialSearch] = useState('')
 
   const token = session?.access_token
   const user = session?.user
@@ -100,10 +101,35 @@ export function SocialPage({ isSubscribed, notify, session }) {
     }
   }
 
+  const search = socialSearch.trim().toLowerCase()
+
+  const visibleCreators = useMemo(() => {
+    return creators.filter((profile) => {
+      if (profile.id === user?.id) return false
+      if (!search) return true
+      return (
+        profile.name.toLowerCase().includes(search) ||
+        profile.city.toLowerCase().includes(search) ||
+        profile.sport.toLowerCase().includes(search)
+      )
+    })
+  }, [creators, search, user?.id])
+
   const feed = useMemo(() => {
-    if (feedMode === 'featured') return posts
-    return posts.filter((post) => following.includes(post.authorId) || post.authorId === user?.id)
-  }, [feedMode, following, posts, user?.id])
+    const base = feedMode === 'featured' ? posts : posts.filter((post) => following.includes(post.authorId) || post.authorId === user?.id)
+
+    if (!search) return base
+
+    return base.filter((post) => {
+      const author = creators.find((profile) => profile.id === post.authorId)
+      return (
+        post.title.toLowerCase().includes(search) ||
+        post.body.toLowerCase().includes(search) ||
+        (post.tag || '').toLowerCase().includes(search) ||
+        (author?.name || '').toLowerCase().includes(search)
+      )
+    })
+  }, [feedMode, following, posts, user?.id, search, creators])
 
   const myPosts = posts.filter((post) => post.authorId === user?.id)
 
@@ -131,6 +157,16 @@ export function SocialPage({ isSubscribed, notify, session }) {
           <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center"><p className="text-xs text-slate-400">Siguiendo</p><p className="text-xl font-semibold">{following.length}</p></div>
         </div>
 
+
+        <div className="mt-4">
+          <input
+            value={socialSearch}
+            onChange={(event) => setSocialSearch(event.target.value)}
+            placeholder="Buscar perfiles o actividad (jugador, ciudad, tag...)"
+            className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm outline-none focus:border-accent-300"
+          />
+        </div>
+
         {syncError ? (
           <p className="mt-4 inline-flex items-center gap-2 rounded-lg border border-amber-300/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
             <AlertTriangle className="h-3.5 w-3.5" /> {syncError}
@@ -153,7 +189,7 @@ export function SocialPage({ isSubscribed, notify, session }) {
           <div className="glass rounded-3xl p-5">
             <div className="mb-4 flex items-center gap-2"><Users className="h-5 w-5 text-accent-300" /><h2 className="text-xl font-semibold">Perfiles</h2></div>
             <div className="space-y-2">
-              {creators.filter((profile) => profile.id !== user?.id).map((profile) => {
+              {visibleCreators.map((profile) => {
                 const isFollowing = following.includes(profile.id)
                 return (
                   <article key={profile.id} className="rounded-xl border border-white/10 bg-white/5 p-3">

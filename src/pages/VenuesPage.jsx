@@ -1,13 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { VenuesSection } from '../components/VenuesSection'
 import { BookingsSection } from '../components/BookingsSection'
 
-export function VenuesPage({ bookings, onBookVenue, initialSearch = '' }) {
-  const [searchTerm, setSearchTerm] = useState(initialSearch)
-
-  useEffect(() => {
-    setSearchTerm(initialSearch)
-  }, [initialSearch])
+export function VenuesPage({ bookings, onBookVenue }) {
+  const [searchTerm, setSearchTerm] = useState('')
 
   return (
     <div className="section-shell space-y-10">

@@ -40,7 +40,6 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState('3 months')
   const [toast, setToast] = useState('')
   const [bookings, setBookings] = useState([])
-  const [globalSearch, setGlobalSearch] = useState('')
   const [path, setPath] = useState(window.location.pathname)
   const [session, setSession] = useState(null)
   const [isSubscribed, setIsSubscribed] = useState(false)
@@ -156,7 +155,7 @@ export default function App() {
 
     switch (path) {
       case '/venues':
-        return <VenuesPage bookings={bookings} onBookVenue={handleBookVenue} notify={notify} initialSearch={globalSearch} />
+        return <VenuesPage bookings={bookings} onBookVenue={handleBookVenue} notify={notify} />
       case '/leagues':
         return <LeaguesPage notify={notify} session={session} />
       case '/chat':
@@ -190,13 +189,6 @@ export default function App() {
               </span>
               <span className="text-sm sm:text-base">Komanda Ryžys · Victory is born together</span>
             </button>
-            <input
-              value={globalSearch}
-              onChange={(event) => setGlobalSearch(event.target.value)}
-              onFocus={() => navigate('/venues')}
-              placeholder="Buscar venue, ciudad o deporte..."
-              className="w-full max-w-xs rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs outline-none focus:border-accent-300 sm:text-sm"
-            />
             <nav className="flex items-center gap-2 sm:gap-4">
               {navItems.map((item) => (
                 <button

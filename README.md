@@ -8,7 +8,7 @@ Aplicación React + Vite conectada a Supabase, con acceso real por autenticació
 - **Autenticación**: login/signup con Supabase Auth obligatorio para usar datos reales.
 - **Suscripción**: activación real en tabla `subscriptions`.
 - **Leagues & Events**: creación de ligas/eventos, equipos, fixtures y edición de resultados con clasificación dinámica.
-- **Buscador**: búsqueda global rápida para venues por ciudad/deporte/nombre.
+- **Buscador social**: búsqueda en perfiles y actividad (posts, tags, ciudades, jugadores).
 - **Venues Lituania**: catálogo inventado con sedes en Vilnius, Kaunas, Klaipėda, Šiauliai, Panevėžys, Alytus, Marijampolė y Utena.
 - **Social (estilo Insta)**: actividad propia, seguidores/siguiendo, publicación de actividad y feed personalizado.
 - **Rutas premium** (`/venues`, `/leagues`, `/chat`, `/social`): bloqueadas si no hay suscripción activa.
