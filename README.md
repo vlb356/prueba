@@ -25,3 +25,9 @@ npm run preview
 - Leagues mantiene persistencia local para no perder estado al recargar.
 
 - El feed social guarda seguidos en `localStorage` con la clave `kr-social-following-v1`.
+
+
+## Supabase
+
+- Esquema inicial en `supabase/migrations/20260401_init.sql`.
+- Guía de despliegue en `supabase/README.md`.
