@@ -23,7 +23,7 @@ export function HeroSection({ onStart, onDemo }) {
             Move your body.
             <br />
             <span className="bg-gradient-to-r from-accent-300 via-orange-200 to-cyan-200 bg-clip-text text-transparent">
-              Build your tribe.
+              Build your gang.
             </span>
           </h1>
 
