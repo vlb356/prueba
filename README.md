@@ -1,41 +1,24 @@
-# Komanda Ryžys (Functional app-style landing)
+# Komanda Ryžys web app
 
-Estado actual: versión funcional con secciones conectadas y acciones interactivas reales.
+Aplicación React + Vite para comunidad deportiva con experiencia multipágina:
 
-## Ejecutar
+- **Inicio**: propuesta de valor, features y comunidad.
+- **Venues**: búsqueda y reservas rápidas con historial de bookings.
+- **Leagues**: gestión de torneos, equipos, fixtures, standings y bracket.
+- **Chats**: canales por contexto (capitanes, matchday, AI coach), respuestas rápidas y persistencia local.
+- **Planes**: selección de pricing y formulario de pre-registro.
+
+## Scripts
 
 ```bash
 npm install
 npm run dev
-```
-
-## Build
-
-```bash
 npm run build
 npm run preview
 ```
 
-## Qué funciona ahora
+## Notas
 
-- Hero con botones funcionales (`Start free trial`, `Watch demo`) que hacen scroll a secciones.
-- Venues con búsqueda y botón de reserva.
-- Bookings list actualizada en tiempo real al reservar.
-- Community con join de eventos.
-- Leagues/Tournaments con:
-  - filtros por estado,
-  - creación de torneo,
-  - registro de equipo,
-  - fixtures (toggle played),
-  - standings y bracket,
-  - persistencia localStorage.
-- Pricing con selección de plan.
-- CTA final con formulario funcional + feedback por toast.
-
-## Troubleshooting
-
-Si tras un merge te aparecen imports en mitad de `src/App.jsx`:
-
-```bash
-npm run fix:app
-```
+- La navegación entre páginas se hace en cliente usando `history.pushState`.
+- El módulo de chats guarda mensajes en `localStorage` bajo la clave `kr-chat-rooms-v1`.
+- Leagues mantiene persistencia local para no perder estado al recargar.
