@@ -6,7 +6,8 @@ Aplicación React + Vite para comunidad deportiva con experiencia multipágina:
 - **Venues**: búsqueda y reservas rápidas con historial de bookings.
 - **Leagues**: gestión de torneos, equipos, fixtures, standings y bracket.
 - **Chats**: canales por contexto (capitanes, matchday, AI coach), respuestas rápidas y persistencia local.
-- **Planes**: selección de pricing y formulario de pre-registro.
+- **Planes**: selección de pricing y activación de suscripción.
+- **Social**: seguimiento de perfiles + feed especial personalizado por suscripciones.
 
 ## Scripts
 
@@ -22,3 +23,5 @@ npm run preview
 - La navegación entre páginas se hace en cliente usando `history.pushState`.
 - El módulo de chats guarda mensajes en `localStorage` bajo la clave `kr-chat-rooms-v1`.
 - Leagues mantiene persistencia local para no perder estado al recargar.
+
+- El feed social guarda seguidos en `localStorage` con la clave `kr-social-following-v1`.

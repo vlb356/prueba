@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { PricingSection } from '../components/PricingSection'
 
-export function PricingPage({ selectedPlan, onSelectPlan, notify }) {
+export function PricingPage({ selectedPlan, onSelectPlan, notify, onActivateSubscription }) {
   const [leadForm, setLeadForm] = useState({ email: '', city: '', sport: 'Padel' })
 
   const submitLead = (event) => {
@@ -12,7 +12,8 @@ export function PricingPage({ selectedPlan, onSelectPlan, notify }) {
       return
     }
 
-    notify(`Pre-registro guardado para ${leadForm.city} (${selectedPlan}).`)
+    notify(`Suscripción activada para ${leadForm.city} (${selectedPlan}). Ya puedes usar Social Feed.`)
+    onActivateSubscription()
     setLeadForm({ email: '', city: '', sport: 'Padel' })
   }
 

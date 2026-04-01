@@ -5,6 +5,7 @@ import { VenuesPage } from './pages/VenuesPage'
 import { LeaguesPage } from './pages/LeaguesPage'
 import { ChatPage } from './pages/ChatPage'
 import { PricingPage } from './pages/PricingPage'
+import { SocialPage } from './pages/SocialPage'
 
 const navItems = [
   { path: '/', label: 'Inicio' },
@@ -12,6 +13,7 @@ const navItems = [
   { path: '/leagues', label: 'Leagues' },
   { path: '/chat', label: 'Chats' },
   { path: '/pricing', label: 'Planes' },
+  { path: '/social', label: 'Social' },
 ]
 
 function Toast({ message, onClose }) {
@@ -34,6 +36,7 @@ export default function App() {
   const [toast, setToast] = useState('')
   const [bookings, setBookings] = useState([])
   const [path, setPath] = useState(window.location.pathname)
+  const [isSubscribed, setIsSubscribed] = useState(() => window.localStorage.getItem('kr-subscription-active-v1') === 'true')
   const timerRef = useRef(null)
 
   useEffect(() => {
@@ -84,7 +87,19 @@ export default function App() {
       case '/chat':
         return <ChatPage notify={notify} />
       case '/pricing':
-        return <PricingPage selectedPlan={selectedPlan} onSelectPlan={sharedProps.onSelectPlan} notify={notify} />
+        return (
+          <PricingPage
+            selectedPlan={selectedPlan}
+            onSelectPlan={sharedProps.onSelectPlan}
+            notify={notify}
+            onActivateSubscription={() => {
+              setIsSubscribed(true)
+              window.localStorage.setItem('kr-subscription-active-v1', 'true')
+            }}
+          />
+        )
+      case '/social':
+        return <SocialPage isSubscribed={isSubscribed} notify={notify} />
       case '/':
       default:
         return <HomePage {...sharedProps} navigate={navigate} />
