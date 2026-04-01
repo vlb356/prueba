@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Medal, X } from 'lucide-react'
+import { LogOut, Medal, X } from 'lucide-react'
 import { HomePage } from './pages/HomePage'
 import { VenuesPage } from './pages/VenuesPage'
 import { LeaguesPage } from './pages/LeaguesPage'
 import { ChatPage } from './pages/ChatPage'
 import { PricingPage } from './pages/PricingPage'
 import { SocialPage } from './pages/SocialPage'
+import { AuthPanel } from './components/AuthPanel'
+import { LockedPreview } from './components/LockedPreview'
+import { clearSavedSession, ensureProfile, fetchMyActiveSubscription, getAuthUser, getSavedSession, hasSupabaseConfig, saveSession } from './lib/supabaseRest'
 
 const navItems = [
   { path: '/', label: 'Inicio' },
@@ -15,6 +18,8 @@ const navItems = [
   { path: '/pricing', label: 'Planes' },
   { path: '/social', label: 'Social' },
 ]
+
+const premiumRoutes = new Set(['/venues', '/leagues', '/chat', '/social'])
 
 function Toast({ message, onClose }) {
   if (!message) return null
@@ -36,13 +41,44 @@ export default function App() {
   const [toast, setToast] = useState('')
   const [bookings, setBookings] = useState([])
   const [path, setPath] = useState(window.location.pathname)
-  const [isSubscribed, setIsSubscribed] = useState(() => window.localStorage.getItem('kr-subscription-active-v1') === 'true')
+  const [session, setSession] = useState(null)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
   const timerRef = useRef(null)
 
   useEffect(() => {
     const onPopState = () => setPath(window.location.pathname)
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  useEffect(() => {
+    async function restoreSession() {
+      if (!hasSupabaseConfig) {
+        setCheckingSession(false)
+        return
+      }
+
+      const saved = getSavedSession()
+      if (!saved?.access_token) {
+        setCheckingSession(false)
+        return
+      }
+
+      try {
+        const user = await getAuthUser(saved.access_token)
+        setSession({ access_token: saved.access_token, user })
+        await ensureProfile(user, saved.access_token)
+        const activeSub = await fetchMyActiveSubscription(user.id, saved.access_token)
+        setIsSubscribed(Boolean(activeSub))
+      } catch {
+        clearSavedSession()
+      } finally {
+        setCheckingSession(false)
+      }
+    }
+
+    restoreSession()
   }, [])
 
   const navigate = (nextPath) => {
@@ -56,6 +92,26 @@ export default function App() {
     setToast(message)
     window.clearTimeout(timerRef.current)
     timerRef.current = window.setTimeout(() => setToast(''), 3000)
+  }
+
+  const handleAuthSuccess = async (newSession) => {
+    const token = newSession.access_token
+    const user = newSession.user || (await getAuthUser(token))
+
+    saveSession({ access_token: token })
+    setSession({ access_token: token, user })
+    await ensureProfile(user, token)
+
+    const activeSub = await fetchMyActiveSubscription(user.id, token)
+    setIsSubscribed(Boolean(activeSub))
+  }
+
+  const logout = () => {
+    clearSavedSession()
+    setSession(null)
+    setIsSubscribed(false)
+    notify('Sesión cerrada.')
+    navigate('/')
   }
 
   const handleBookVenue = (venueName) => {
@@ -78,7 +134,25 @@ export default function App() {
     [selectedPlan],
   )
 
+  const isPremiumBlocked = premiumRoutes.has(path) && !isSubscribed
+
   const renderPage = () => {
+    if (checkingSession) {
+      return <LockedPreview title="Conectando..." message="Estamos validando tu sesión con Supabase." />
+    }
+
+    if (!hasSupabaseConfig) {
+      return <LockedPreview title="Configura Supabase" message="Añade VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY para usar datos reales." />
+    }
+
+    if (!session && path !== '/') {
+      return <AuthPanel onAuthSuccess={handleAuthSuccess} notify={notify} />
+    }
+
+    if (isPremiumBlocked) {
+      return <LockedPreview title="Contenido para suscriptores" message="Solo mostramos un spoiler genérico. Activa la suscripción para ver datos reales." />
+    }
+
     switch (path) {
       case '/venues':
         return <VenuesPage bookings={bookings} onBookVenue={handleBookVenue} notify={notify} />
@@ -92,14 +166,12 @@ export default function App() {
             selectedPlan={selectedPlan}
             onSelectPlan={sharedProps.onSelectPlan}
             notify={notify}
-            onActivateSubscription={() => {
-              setIsSubscribed(true)
-              window.localStorage.setItem('kr-subscription-active-v1', 'true')
-            }}
+            session={session}
+            onActivateSubscription={() => setIsSubscribed(true)}
           />
         )
       case '/social':
-        return <SocialPage isSubscribed={isSubscribed} notify={notify} />
+        return <SocialPage isSubscribed={isSubscribed} notify={notify} session={session} />
       case '/':
       default:
         return <HomePage {...sharedProps} navigate={navigate} />
@@ -130,6 +202,11 @@ export default function App() {
                 </button>
               ))}
             </nav>
+            {session ? (
+              <button onClick={logout} className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 sm:text-sm">
+                <LogOut className="h-4 w-4" /> Salir
+              </button>
+            ) : null}
           </div>
         </div>
       </header>

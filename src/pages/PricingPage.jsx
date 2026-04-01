@@ -1,20 +1,35 @@
 import { useState } from 'react'
 import { PricingSection } from '../components/PricingSection'
+import { activateSubscription } from '../lib/supabaseRest'
 
-export function PricingPage({ selectedPlan, onSelectPlan, notify, onActivateSubscription }) {
+export function PricingPage({ selectedPlan, onSelectPlan, notify, onActivateSubscription, session }) {
   const [leadForm, setLeadForm] = useState({ email: '', city: '', sport: 'Padel' })
+  const [loading, setLoading] = useState(false)
 
-  const submitLead = (event) => {
+  const submitLead = async (event) => {
     event.preventDefault()
+
+    if (!session?.user || !session?.access_token) {
+      notify('Debes iniciar sesión para activar una suscripción real.')
+      return
+    }
 
     if (!leadForm.email || !leadForm.city) {
       notify('Completa email y ciudad.')
       return
     }
 
-    notify(`Suscripción activada para ${leadForm.city} (${selectedPlan}). Ya puedes usar Social Feed.`)
-    onActivateSubscription()
-    setLeadForm({ email: '', city: '', sport: 'Padel' })
+    setLoading(true)
+    try {
+      await activateSubscription(session.user.id, selectedPlan, session.access_token)
+      notify(`Suscripción activada para ${leadForm.city} (${selectedPlan}). Ya puedes usar todo el contenido premium.`)
+      onActivateSubscription()
+      setLeadForm({ email: '', city: '', sport: 'Padel' })
+    } catch {
+      notify('No se pudo activar la suscripción. Revisa políticas de Supabase y sesión.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -51,8 +66,8 @@ export function PricingPage({ selectedPlan, onSelectPlan, notify, onActivateSubs
               <option>Running</option>
               <option>HIIT</option>
             </select>
-            <button className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 transition hover:bg-accent-400 sm:col-span-3">
-              Obtener acceso prioritario
+            <button disabled={loading} className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 transition hover:bg-accent-400 disabled:opacity-60 sm:col-span-3">
+              {loading ? 'Activando…' : 'Activar suscripción'}
             </button>
           </form>
         </div>
