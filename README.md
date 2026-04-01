@@ -7,7 +7,8 @@ Aplicación React + Vite conectada a Supabase, con acceso real por autenticació
 - **Inicio**: landing pública (solo spoiler genérico, sin datos de base de datos).
 - **Autenticación**: login/signup con Supabase Auth obligatorio para usar datos reales.
 - **Suscripción**: activación real en tabla `subscriptions`.
-- **Social**: perfiles, follows y feed cargados desde Supabase (sin datos mock).
+- **Leagues & Events**: creación de ligas/eventos, equipos, fixtures y edición de resultados con clasificación dinámica.
+- **Social (estilo Insta)**: actividad propia, seguidores/siguiendo, publicación de actividad y feed personalizado.
 - **Rutas premium** (`/venues`, `/leagues`, `/chat`, `/social`): bloqueadas si no hay suscripción activa.
 
 ## Scripts
@@ -21,7 +22,8 @@ npm run preview
 
 ## Supabase
 
-- Esquema inicial en `supabase/migrations/20260401_init.sql`.
+- Esquema base en `supabase/migrations/20260401_init.sql`.
+- Módulo de eventos en `supabase/migrations/20260401_events.sql`.
 - Guía de despliegue en `supabase/README.md`.
 - Configura `.env.local` usando `env.frontend.example`.
 

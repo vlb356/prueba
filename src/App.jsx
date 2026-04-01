@@ -157,7 +157,7 @@ export default function App() {
       case '/venues':
         return <VenuesPage bookings={bookings} onBookVenue={handleBookVenue} notify={notify} />
       case '/leagues':
-        return <LeaguesPage notify={notify} />
+        return <LeaguesPage notify={notify} session={session} />
       case '/chat':
         return <ChatPage notify={notify} />
       case '/pricing':

@@ -33,6 +33,7 @@ VITE_SUPABASE_ANON_KEY=<your-anon-key>
 - `chat_rooms`, `chat_members`, `chat_messages`
 - `venues`, `bookings`
 - `leagues`, `teams`, `fixtures`
+- `events` (comunidad y torneos)
 
 También incluye:
 - RLS habilitado en todas las tablas

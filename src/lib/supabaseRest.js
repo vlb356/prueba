@@ -123,3 +123,47 @@ export async function fetchPublicPosts(token) {
 export async function fetchPublicProfiles(token) {
   return dbFetch('profiles?select=id,username,full_name,city,favorite_sport&order=created_at.desc&limit=40', { method: 'GET' }, token)
 }
+
+export async function fetchLeagues(token) {
+  return dbFetch('leagues?select=id,name,sport,city,season,owner_id,created_at&order=created_at.desc', { method: 'GET' }, token)
+}
+
+export async function createLeague(payload, token) {
+  return dbFetch('leagues', { method: 'POST', body: JSON.stringify([payload]) }, token)
+}
+
+export async function fetchTeams(leagueId, token) {
+  return dbFetch(`teams?select=id,league_id,name,created_at&league_id=eq.${leagueId}&order=created_at.asc`, { method: 'GET' }, token)
+}
+
+export async function createTeam(payload, token) {
+  return dbFetch('teams', { method: 'POST', body: JSON.stringify([payload]) }, token)
+}
+
+export async function fetchFixtures(leagueId, token) {
+  return dbFetch(`fixtures?select=id,league_id,home_team_id,away_team_id,kickoff_at,home_score,away_score,status,created_at&league_id=eq.${leagueId}&order=created_at.asc`, { method: 'GET' }, token)
+}
+
+export async function createFixture(payload, token) {
+  return dbFetch('fixtures', { method: 'POST', body: JSON.stringify([payload]) }, token)
+}
+
+export async function updateFixtureResult(fixtureId, payload, token) {
+  return dbFetch(`fixtures?id=eq.${fixtureId}`, { method: 'PATCH', body: JSON.stringify(payload) }, token)
+}
+
+export async function fetchEvents(token) {
+  return dbFetch('events?select=id,title,description,event_at,city,created_by,created_at&order=event_at.asc', { method: 'GET' }, token)
+}
+
+export async function createEvent(payload, token) {
+  return dbFetch('events', { method: 'POST', body: JSON.stringify([payload]) }, token)
+}
+
+export async function fetchFollowing(token, userId) {
+  return dbFetch(`follows?select=follower_id,following_id,created_at&or=(follower_id.eq.${userId},following_id.eq.${userId})`, { method: 'GET' }, token)
+}
+
+export async function createPost(payload, token) {
+  return dbFetch('posts', { method: 'POST', body: JSON.stringify([payload]) }, token)
+}
