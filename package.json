@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "fix:app": "node scripts/fix-app-file.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
