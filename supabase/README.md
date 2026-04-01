@@ -38,3 +38,9 @@ También incluye:
 - RLS habilitado en todas las tablas
 - Políticas base para lectura/escritura por usuario autenticado
 - Trigger para `updated_at` en `profiles`
+
+
+## Seguridad de keys
+- Usa `anon`/`publishable` para frontend.
+- **Nunca** uses `service_role` ni `sb_secret` en cliente (solo backend).
+- Si las compartiste accidentalmente, rótalas en Supabase de inmediato.
