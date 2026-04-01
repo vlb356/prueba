@@ -1,6 +1,6 @@
-# Komanda Ryžys (Stable rollback)
+# Komanda Ryžys (Functional app-style landing)
 
-Este estado vuelve a una versión simple que funciona de forma estable.
+Estado actual: versión funcional con secciones conectadas y acciones interactivas reales.
 
 ## Ejecutar
 
@@ -16,14 +16,26 @@ npm run build
 npm run preview
 ```
 
-## Qué incluye ahora
+## Qué funciona ahora
 
-- Header base de marca
-- Hero section
-- Features
-- Pricing
-- CTA final
+- Hero con botones funcionales (`Start free trial`, `Watch demo`) que hacen scroll a secciones.
+- Venues con búsqueda y botón de reserva.
+- Bookings list actualizada en tiempo real al reservar.
+- Community con join de eventos.
+- Leagues/Tournaments con:
+  - filtros por estado,
+  - creación de torneo,
+  - registro de equipo,
+  - fixtures (toggle played),
+  - standings y bracket,
+  - persistencia localStorage.
+- Pricing con selección de plan.
+- CTA final con formulario funcional + feedback por toast.
 
-## Siguiente paso recomendado
+## Troubleshooting
 
-Reintroducir funcionalidades avanzadas (ligas, eventos, bookings, IA) en iteraciones pequeñas y verificables.
+Si tras un merge te aparecen imports en mitad de `src/App.jsx`:
+
+```bash
+npm run fix:app
+```

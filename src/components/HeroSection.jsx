@@ -6,7 +6,7 @@ const floatingMetrics = [
   { label: 'Weekly events', value: '520+' },
 ]
 
-export function HeroSection() {
+export function HeroSection({ onStart, onDemo }) {
   return (
     <section className="section-shell relative overflow-hidden" id="hero">
       <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-accent-500/20 blur-3xl" />
@@ -33,10 +33,16 @@ export function HeroSection() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <button className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 shadow-orange transition hover:-translate-y-0.5 hover:bg-accent-400">
+            <button
+              onClick={onStart}
+              className="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-primary-950 shadow-orange transition hover:-translate-y-0.5 hover:bg-accent-400"
+            >
               Start free trial
             </button>
-            <button className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-semibold text-white transition hover:border-accent-300/50 hover:bg-white/10">
+            <button
+              onClick={onDemo}
+              className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-semibold text-white transition hover:border-accent-300/50 hover:bg-white/10"
+            >
               Watch demo
             </button>
           </div>
@@ -65,7 +71,7 @@ export function HeroSection() {
               </div>
 
               <div className="mt-4 rounded-xl border border-accent-400/40 bg-accent-500/15 p-3">
-                <p className="text-xs uppercase tracking-[0.15em] text-accent-200">AI Match</p>
+                <p className="text-xs uppercase tracking-[0.15em] text-accent-200">AI MATCH</p>
                 <p className="mt-1 text-sm text-slate-100">You + 4 players found nearby for basketball in 12 min.</p>
                 <button className="mt-3 inline-flex items-center gap-2 rounded-lg bg-accent-500 px-3 py-2 text-xs font-semibold text-primary-950">
                   <Zap className="h-3.5 w-3.5" />
